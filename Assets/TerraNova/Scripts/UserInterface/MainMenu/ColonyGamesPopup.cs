@@ -1,6 +1,7 @@
 ﻿using DotNetMissionSDK;
 using DotNetMissionSDK.Json;
 using System.IO;
+using TerraNova;
 using TerraNova.Systems;
 using TerraNova.UserInterface.Generic;
 using UnityEngine;
@@ -57,12 +58,16 @@ namespace TerraNova.UserInterface.MainMenu
 		{
 			_MissionListBox.Clear();
 
-			// Read missions in "ColonyGames" directory
-			if (!Directory.Exists("ColonyGames"))
+			// Read missions from <StartupPath>\ColonyGames
+			string colonyGamesPath = StartupLogger.ColonyGamesPath;
+			if (!Directory.Exists(colonyGamesPath))
+			{
+				Debug.LogWarning("[ColonyGamesPopup] ColonyGames directory not found: " + colonyGamesPath);
 				return;
+			}
 
 			// Add missions to list box
-			foreach (string file in Directory.EnumerateFiles("ColonyGames", "*.opm", SearchOption.AllDirectories))
+			foreach (string file in Directory.EnumerateFiles(colonyGamesPath, "*.opm", SearchOption.AllDirectories))
 			{
 				try
 				{

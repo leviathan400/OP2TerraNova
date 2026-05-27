@@ -7,7 +7,7 @@
 	"LevelDetails":
 	{
 		"LevelDescription":"My Tutorial",
-		"MapName":"mytutorial.map",
+		"MapName":"tutorial.map",
 		"MaxTechLevel":12,
 		"MissionType":"Colony",
 		"NumPlayers":2,

@@ -50,27 +50,36 @@ namespace TerraNova.Systems.AssetManagement
 		/// </summary>
 		public static void Initialize(MonoBehaviour coroutineOwner, string[] modBundlePaths, OnInitializeCallback onInitCB)
 		{
+			Debug.Log("[AssetManager] Initialize start. CWD=" + System.IO.Directory.GetCurrentDirectory());
+
 			// Load art file
 			try
 			{
-				// Prepare Legacy manager
+				Debug.Log("[AssetManager] Creating ResourceManager(\".\")");
 				_LegacyAssets = new ResourceManager(".");
 
-				// Get art file
+				Debug.Log("[AssetManager] Opening 'op2_art.prt' stream...");
 				Stream artPartStream = _LegacyAssets.GetResourceStream("op2_art.prt");
+				if (artPartStream == null)
+				{
+					Debug.LogError("[AssetManager] 'op2_art.prt' stream is null. Is the file in the working directory?");
+					onInitCB?.Invoke(false);
+					return;
+				}
+
+				Debug.Log("[AssetManager] Reading ArtFile...");
 				_ArtFile = ArtFile.Read(artPartStream);
-				
+				Debug.Log("[AssetManager] ArtFile loaded. imageMetas=" + _ArtFile.imageMetas.Count + " animations=" + _ArtFile.animations.Count);
 			}
 			catch (System.Exception ex)
 			{
+				Debug.LogError("[AssetManager] Failed during ArtFile/ResourceManager init.");
 				Debug.LogException(ex);
-
-				// Inform caller of failure
 				onInitCB?.Invoke(false);
 				return;
 			}
 
-			// Load asset bundle
+			Debug.Log("[AssetManager] Starting LoadAssetsRoutine coroutine.");
 			coroutineOwner.StartCoroutine(LoadAssetsRoutine(modBundlePaths, onInitCB));
 		}
 
@@ -87,19 +96,24 @@ namespace TerraNova.Systems.AssetManagement
 			}
 
 			// Prepare legacy art loader
+			Debug.Log("[AssetManager] Creating OP2BmpLoader('OP2_ART.BMP')...");
 			try
 			{
 				_LegacyArt = new OP2BmpLoader("OP2_ART.BMP", _ArtFile);
+				Debug.Log("[AssetManager] OP2BmpLoader created OK.");
 			}
 			catch (System.Exception ex)
 			{
-				Debug.LogWarning(ex);
+				Debug.LogError("[AssetManager] OP2BmpLoader threw — legacy art will be unavailable.");
+				Debug.LogException(ex);
 			}
 
 			yield return null;
 
 			float startTime = Time.realtimeSinceStartup;
 			float curTime = startTime;
+
+			Debug.Log("[AssetManager] Loading " + _ArtFile.imageMetas.Count + " textures...");
 
 			// Load textures
 			for (int i=0; i < _ArtFile.imageMetas.Count; ++i)
@@ -130,7 +144,7 @@ namespace TerraNova.Systems.AssetManagement
 				else
 				{
 					// Could not find texture!
-					Debug.LogError("Could not find texture for index: " + i);
+					Debug.LogError("[AssetManager] Could not find texture for index: " + i + " (no mod bundle and _LegacyArt is null). Aborting load.");
 
 					// Inform caller of failure
 					onInitCB?.Invoke(false);
@@ -145,13 +159,15 @@ namespace TerraNova.Systems.AssetManagement
 				}
 			}
 
-			Debug.Log("Texture Load Time: " + (Time.realtimeSinceStartup - startTime).ToString("N2") + " seconds");
-			
+			Debug.Log("[AssetManager] Texture Load Time: " + (Time.realtimeSinceStartup - startTime).ToString("N2") + " seconds (loaded " + _TextureLookup.Count + " textures)");
+
+			Debug.Log("[AssetManager] Loading sound.vol...");
 			yield return LoadSoundsRoutine("sound.vol");
+			Debug.Log("[AssetManager] Loading voices.vol...");
 			yield return LoadSoundsRoutine("voices.vol");
 
-			Debug.Log("Total Load Time: " + (Time.realtimeSinceStartup - startTime).ToString("N2") + " seconds");
-			
+			Debug.Log("[AssetManager] Total Load Time: " + (Time.realtimeSinceStartup - startTime).ToString("N2") + " seconds. Invoking onInitCB(true).");
+
 			// Inform caller of success
 			onInitCB?.Invoke(true);
 		}

@@ -1,6 +1,7 @@
 ﻿using DotNetMissionSDK;
 using DotNetMissionSDK.Json;
 using System.IO;
+using TerraNova;
 using TerraNova.Systems;
 using TerraNova.UserInterface.Generic;
 using UnityEngine;
@@ -55,12 +56,16 @@ namespace TerraNova.UserInterface.MainMenu
 		{
 			_MissionListBox.Clear();
 
-			// Read missions in "Tutorials" directory
-			if (!Directory.Exists("Tutorials"))
+			// Read missions from <StartupPath>\Tutorials
+			string tutorialsPath = StartupLogger.TutorialsPath;
+			if (!Directory.Exists(tutorialsPath))
+			{
+				Debug.LogWarning("[TutorialsPopup] Tutorials directory not found: " + tutorialsPath);
 				return;
+			}
 
 			// Add missions to list box
-			foreach (string file in Directory.EnumerateFiles("Tutorials", "*.opm", SearchOption.AllDirectories))
+			foreach (string file in Directory.EnumerateFiles(tutorialsPath, "*.opm", SearchOption.AllDirectories))
 			{
 				try
 				{
