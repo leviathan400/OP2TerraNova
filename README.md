@@ -19,8 +19,24 @@ Unity sandbox for recreating Outpost 2 functionality.
 - Minimap.
 - Camera zoom levels.
 - Clipping the map render to the inner viewport rectangle so it doesn't draw behind the right-side toolbar.
-- Game loop, AI, mission triggers, daylight cycle, morale, research, combat — none of these were written by TechCor either.
+- Game loop, AI, mission triggers, daylight cycle, morale, research, combat.
 - The rest of the game...
+
+
+## Required OP2 data files
+
+Place these in the `OP2\` folder alongside the application. All files come from a standard Outpost 2 install.
+
+- `op2_art.prt` — sprite/animation metadata
+- `OP2_ART.BMP` — 5390 sprite frames (units, structures, animations)
+- `sound.vol` — sound effects archive
+- `voices.vol` — voiceover archive
+- `sheets.vol` — unit/building/weapon/starship/mine/morale balance tables
+- `maps.vol` — `.map` files + terrain tile bitmaps (`wellNNNN.bmp`)
+- `multitek.txt` — multiplayer tech tree
+- `edentek.txt` — Eden campaign tech tree
+- `ply_tek.txt` — Plymouth campaign tech tree
+- `tutortek.txt` — tutorial tech tree
 
 
 ## Logging
@@ -29,3 +45,4 @@ Two log files are written next to the application (or in the project root, in th
 
 - **`startup.log`** — boot sequence, asset load, CWD changes. Captures every `Debug.Log*` call from app start. Source: [Assets/TerraNova/Scripts/StartupLogger.cs](Assets/TerraNova/Scripts/StartupLogger.cs).
 - **`game.log`** — written when entering the Game scene. Captures mission details, map info, tileset enumeration, sheet load counts, player setup. Source: [Assets/TerraNova/Scripts/GameLogger.cs](Assets/TerraNova/Scripts/GameLogger.cs).
+
